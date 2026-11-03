@@ -3,13 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#171b46">
+<meta name="theme-color" content="#0755e8">
+<link rel="icon" type="image/svg+xml" href="cucu-icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <title>CUCU — Tu agenda inteligente</title>
 <style>
 :root{--navy:#171b46;--purple:#6857e8;--pink:#ff5ca8;--cyan:#32c8d7;--yellow:#ffd45a;--ink:#202342;--muted:#737895;--paper:#f5f6ff;--white:#fff}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(145deg,#edf1ff,#fff4f9);color:var(--ink);min-height:100vh}
 header{background:var(--navy);color:white;padding:22px max(18px,calc((100% - 1100px)/2));display:flex;align-items:center;gap:15px;box-shadow:0 8px 25px #171b4630}
-.logo{width:64px;height:64px;flex:none}.brand h1{margin:0;font-size:29px;letter-spacing:2px}.brand p{margin:2px 0 0;color:#d7d9ff;font-size:13px}
+.logo{width:64px;height:64px;flex:none;object-fit:contain;border-radius:17px;box-shadow:0 3px 12px #0003}.brand h1{margin:0;font-size:29px;letter-spacing:2px}.brand p{margin:2px 0 0;color:#d7d9ff;font-size:13px}
 main{max-width:1100px;margin:24px auto;padding:0 16px}.welcome{background:linear-gradient(110deg,#6857e8,#a45ce6 55%,#ff5ca8);color:white;padding:22px;border-radius:22px;box-shadow:0 12px 28px #6857e830}.welcome h2{margin:0 0 5px;font-size:23px}.welcome p{margin:0;opacity:.94}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat,.panel{background:white;border-radius:18px;padding:16px;box-shadow:0 5px 20px #28305c0c}.stat strong{display:block;font-size:27px;color:var(--purple)}.stat span{font-size:12px;color:var(--muted)}
 .voicebar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.btn{border:0;border-radius:13px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--purple);color:white;font-size:14px}.btn:hover{filter:brightness(1.06)}.btn.secondary{background:#ecebff;color:#5144bf}.btn.pink{background:var(--pink)}.btn.dark{background:var(--navy)}.btn.small{padding:8px 11px;font-size:12px}
@@ -21,14 +24,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
 </head>
 <body>
 <header>
-<svg class="logo" viewBox="0 0 100 100" aria-label="Icono CUCU">
- <rect x="7" y="7" width="86" height="86" rx="25" fill="#fff"/>
- <circle cx="48" cy="43" r="27" fill="none" stroke="#6857e8" stroke-width="7"/>
- <path d="M48 23v21l15 9" fill="none" stroke="#ff5ca8" stroke-width="6" stroke-linecap="round"/>
- <path d="M25 77h50" stroke="#32c8d7" stroke-width="5" stroke-linecap="round"/>
- <path d="M31 69l-5 8 5 0M65 69l5 8-5 0" fill="none" stroke="#32c8d7" stroke-width="3"/>
- <circle cx="48" cy="43" r="3.5" fill="#ffd45a"/>
-</svg>
+<img class="logo" src="cucu-icon.svg" alt="Icono CUCU">
 <div class="brand"><h1>CUCU</h1><p>Tu vida. Tu tiempo. Y nada se te pierde.</p></div>
 </header>
 <main>
@@ -63,7 +59,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
  <section>
   <div class="panel">
    <h3>🛒 Lista de la compra</h3>
-   <div class="formgrid"><input id="shopInput" placeholder="Añadir producto"><button class="btn" id="addShop">Añadir</button></div>
+   <div class="formgrid"><input id="shopInput" placeholder="Añadir producto"><button class="btn" id="addShop">Añadir</button><button class="btn dark wide" id="voiceShop" type="button">🎙️ Añadir compra hablando</button></div><p class="muted" id="shopVoiceStatus" aria-live="polite">Puedes decir varios productos seguidos: «leche, pan, huevos y aceite».</p>
    <div id="shopList"></div>
   </div>
   <div class="panel section">
@@ -119,6 +115,27 @@ $('saveTask').onclick=()=>{let title=$('taskTitle').value.trim();if(!title){$('t
 $('search').oninput=render;$('objectSearch').oninput=render;
 $('addShop').onclick=()=>{let name=$('shopInput').value.trim();if(name){shopping.push({name,done:false});$('shopInput').value='';persist()}};
 $('shopInput').onkeydown=e=>{if(e.key==='Enter')$('addShop').click()};
+
+$('voiceShop').onclick=()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$('shopVoiceStatus').textContent='El dictado no está disponible en este navegador. Prueba Safari actualizado, Chrome o Edge y permite el micrófono.';return}
+ const r=new SR();r.lang='es-ES';r.interimResults=false;r.maxAlternatives=1;
+ $('voiceShop').disabled=true;$('voiceShop').textContent='🎙️ Escuchando…';$('shopVoiceStatus').textContent='Dime los productos. Puedes enumerarlos en una sola frase.';
+ r.onresult=e=>{
+   const spoken=e.results[0][0].transcript.trim();
+   const cleaned=spoken.replace(/^(añade|añadir|compra|comprar|necesito|apunta|apuntar)\\s+/i,'');
+   const items=cleaned.split(/,|;|\\s+y\\s+/i).map(x=>x.trim().replace(/[.!?]+$/,'')).filter(Boolean);
+   const added=[];
+   items.forEach(name=>{if(!shopping.some(s=>s.name.toLocaleLowerCase('es')===name.toLocaleLowerCase('es')&&!s.done)){shopping.push({name,done:false});added.push(name)}});
+   persist();
+   $('shopVoiceStatus').textContent=added.length?'Añadido a la compra: '+added.join(', ')+'.':'No he encontrado productos nuevos en lo que has dicho.';
+   if(added.length && 'speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('He añadido '+added.join(', ')+ ' a la lista de la compra.');u.lang='es-ES';speechSynthesis.speak(u)}
+ };
+ r.onerror=e=>{$('shopVoiceStatus').textContent='No se pudo usar el micrófono: '+e.error+'. Comprueba los permisos del navegador.'};
+ r.onend=()=>{$('voiceShop').disabled=false;$('voiceShop').textContent='🎙️ Añadir compra hablando'};
+ try{r.start()}catch(e){$('shopVoiceStatus').textContent='No se pudo iniciar el micrófono. Vuelve a intentarlo.';$('voiceShop').disabled=false;$('voiceShop').textContent='🎙️ Añadir compra hablando'}
+};
+
 $('saveObject').onclick=()=>{let name=$('objectName').value.trim(),place=$('objectPlace').value.trim();if(name&&place){objects.push({name,place});$('objectName').value='';$('objectPlace').value='';persist()}};
 $('readDay').onclick=()=>{if(!('speechSynthesis'in window)){alert('La lectura de voz no está disponible en este navegador.');return}speechSynthesis.cancel();let list=tasks.filter(t=>!t.done&&t.date===today()).sort((a,b)=>a.priority===b.priority?0:a.priority==='high'?-1:1);let msg=list.length?'Estas son tus tareas de hoy. '+list.map(t=>(t.priority==='high'?'Importante. ':'')+t.title+(t.time?' a las '+t.time:'')).join('. '):'No tienes tareas pendientes para hoy. ¡Disfruta del día!';let u=new SpeechSynthesisUtterance(msg);u.lang='es-ES';let v=voices.find(v=>v.name===$('voiceSelect').value);if(v)u.voice=v;u.rate=.94;u.pitch=1.05;speechSynthesis.speak(u)};
 $('voiceStop').onclick=()=>{if('speechSynthesis'in window)speechSynthesis.cancel()};
@@ -136,5 +153,10 @@ $('voiceAdd').onclick=()=>{
 };
 const h=new Date().getHours();$('greeting').textContent=(h<12?'¡Buenos días! ☀️':h<20?'¡Buenas tardes! 🌤️':'¡Buenas noches! 🌙')+' Vamos a organizar lo importante de hoy.';
 render();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
 </script>
 </body></html>
