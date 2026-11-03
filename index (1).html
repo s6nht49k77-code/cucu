@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171b46">
+<title>CUCU — Tu agenda inteligente</title>
+<style>
+:root{--navy:#171b46;--purple:#6857e8;--pink:#ff5ca8;--cyan:#32c8d7;--yellow:#ffd45a;--ink:#202342;--muted:#737895;--paper:#f5f6ff;--white:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(145deg,#edf1ff,#fff4f9);color:var(--ink);min-height:100vh}
+header{background:var(--navy);color:white;padding:22px max(18px,calc((100% - 1100px)/2));display:flex;align-items:center;gap:15px;box-shadow:0 8px 25px #171b4630}
+.logo{width:64px;height:64px;flex:none}.brand h1{margin:0;font-size:29px;letter-spacing:2px}.brand p{margin:2px 0 0;color:#d7d9ff;font-size:13px}
+main{max-width:1100px;margin:24px auto;padding:0 16px}.welcome{background:linear-gradient(110deg,#6857e8,#a45ce6 55%,#ff5ca8);color:white;padding:22px;border-radius:22px;box-shadow:0 12px 28px #6857e830}.welcome h2{margin:0 0 5px;font-size:23px}.welcome p{margin:0;opacity:.94}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat,.panel{background:white;border-radius:18px;padding:16px;box-shadow:0 5px 20px #28305c0c}.stat strong{display:block;font-size:27px;color:var(--purple)}.stat span{font-size:12px;color:var(--muted)}
+.voicebar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.btn{border:0;border-radius:13px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--purple);color:white;font-size:14px}.btn:hover{filter:brightness(1.06)}.btn.secondary{background:#ecebff;color:#5144bf}.btn.pink{background:var(--pink)}.btn.dark{background:var(--navy)}.btn.small{padding:8px 11px;font-size:12px}
+.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}.panel h3{margin:0 0 14px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.formgrid input,.formgrid select,.formgrid textarea,.search{width:100%;border:1px solid #e1e3f1;border-radius:11px;padding:12px;font:inherit;background:#fff;color:var(--ink)}.formgrid textarea{grid-column:1/-1;resize:vertical;min-height:55px}.wide{grid-column:1/-1}.filters{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.chip{border:1px solid #e4e4f2;background:#fff;color:#626681;border-radius:30px;padding:8px 12px;cursor:pointer;font-size:12px}.chip.active{background:#ecebff;color:#5144bf;border-color:#c9c4ff}
+.task{border:1px solid #ececf5;border-radius:14px;padding:12px;margin:9px 0;display:flex;gap:10px;align-items:flex-start}.task.done{opacity:.55}.task.done .taskname{text-decoration:line-through}.taskmain{flex:1;min-width:0}.taskname{font-weight:700;overflow-wrap:anywhere}.meta{font-size:12px;color:var(--muted);margin-top:4px}.priority{font-size:10px;font-weight:800;border-radius:20px;padding:4px 7px;background:#fff1c9;color:#8c6100;margin-left:5px}.priority.low{background:#edf0f8;color:#66708c}.actions{display:flex;gap:5px;flex-wrap:wrap}.empty{color:var(--muted);text-align:center;padding:22px}.section{margin-top:16px}.objectrow,.shoprow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #eeeef5;padding:9px 0}.muted{color:var(--muted);font-size:12px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}header{padding:17px}.brand h1{font-size:25px}.formgrid{grid-template-columns:1fr}.formgrid>*{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<header>
+<svg class="logo" viewBox="0 0 100 100" aria-label="Icono CUCU">
+ <rect x="7" y="7" width="86" height="86" rx="25" fill="#fff"/>
+ <circle cx="48" cy="43" r="27" fill="none" stroke="#6857e8" stroke-width="7"/>
+ <path d="M48 23v21l15 9" fill="none" stroke="#ff5ca8" stroke-width="6" stroke-linecap="round"/>
+ <path d="M25 77h50" stroke="#32c8d7" stroke-width="5" stroke-linecap="round"/>
+ <path d="M31 69l-5 8 5 0M65 69l5 8-5 0" fill="none" stroke="#32c8d7" stroke-width="3"/>
+ <circle cx="48" cy="43" r="3.5" fill="#ffd45a"/>
+</svg>
+<div class="brand"><h1>CUCU</h1><p>Tu vida. Tu tiempo. Y nada se te pierde.</p></div>
+</header>
+<main>
+<section class="welcome"><h2 id="greeting">¡Buenos días! ☀️ Vamos a organizar lo importante de hoy.</h2><p>Tu agenda personal, sencilla y siempre a mano.</p></section>
+<section class="stats">
+ <div class="stat"><strong id="todayCount">0</strong><span>TAREAS DE HOY</span></div>
+ <div class="stat"><strong id="pendingCount">0</strong><span>PENDIENTES</span></div>
+ <div class="stat"><strong id="doneCount">0</strong><span>COMPLETADAS</span></div>
+ <div class="stat"><strong id="objectCount">0</strong><span>OBJETOS GUARDADOS</span></div>
+</section>
+<div class="voicebar">
+ <button class="btn pink" id="readDay">🔊 Leer mi día en voz alta</button>
+ <button class="btn dark" id="voiceAdd">🎙️ Añadir tarea hablando</button>
+ <button class="btn secondary" id="voiceStop">■ Parar voz</button>
+</div>
+<div class="layout">
+ <section class="panel">
+  <h3>＋ Añadir tarea</h3>
+  <div class="formgrid">
+   <input id="taskTitle" class="wide" placeholder="¿Qué tienes que hacer?" maxlength="140">
+   <select id="taskCategory"><option>Otros</option><option>Salud</option><option>Gimnasio</option><option>Medicación</option><option>Comidas</option><option>Compra</option><option>Llamadas</option></select>
+   <select id="taskPriority"><option value="high">Importante</option><option value="low">Menos importante</option></select>
+   <input id="taskDate" type="date">
+   <input id="taskTime" type="time">
+   <textarea id="taskNotes" placeholder="Notas (opcional)"></textarea>
+   <button class="btn wide" id="saveTask">Guardar tarea</button>
+  </div>
+  <div class="section"><h3>Agenda</h3><input id="search" class="search" placeholder="Buscar tarea...">
+   <div class="filters" id="filters"></div><div id="taskList"></div>
+  </div>
+ </section>
+ <section>
+  <div class="panel">
+   <h3>🛒 Lista de la compra</h3>
+   <div class="formgrid"><input id="shopInput" placeholder="Añadir producto"><button class="btn" id="addShop">Añadir</button></div>
+   <div id="shopList"></div>
+  </div>
+  <div class="panel section">
+   <h3>🔎 Buscador de objetos</h3>
+   <div class="formgrid"><input id="objectName" placeholder="¿Qué objeto?"><input id="objectPlace" placeholder="¿Dónde lo has dejado?"><button class="btn wide" id="saveObject">Guardar ubicación</button></div>
+   <input id="objectSearch" class="search section" placeholder="Buscar llaves, gafas...">
+   <div id="objectList"></div>
+  </div>
+  <div class="panel section">
+   <h3>🗣️ Preferencias de voz</h3>
+   <label class="muted" for="voiceSelect">Voz para leer la agenda</label>
+   <select id="voiceSelect" class="search"></select>
+   <p class="muted">La disponibilidad de voces depende de Windows y del navegador.</p>
+  </div>
+ </section>
+</div>
+</main>
+<footer>CUCU · Tus datos se guardan en este navegador en este dispositivo.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().slice(0,10);
+let tasks=JSON.parse(localStorage.getItem('cucu_tasks')||'[]');
+let shopping=JSON.parse(localStorage.getItem('cucu_shopping')||'[]');
+let objects=JSON.parse(localStorage.getItem('cucu_objects')||'[]');
+let filter='Todo', voices=[];
+$('taskDate').value=today();
+const cats=['Todo','Salud','Gimnasio','Medicación','Comidas','Compra','Llamadas','Otros'];
+function persist(){localStorage.setItem('cucu_tasks',JSON.stringify(tasks));localStorage.setItem('cucu_shopping',JSON.stringify(shopping));localStorage.setItem('cucu_objects',JSON.stringify(objects));render()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){
+ $('todayCount').textContent=tasks.filter(t=>t.date===today()&&!t.done).length;
+ $('pendingCount').textContent=tasks.filter(t=>!t.done).length;
+ $('doneCount').textContent=tasks.filter(t=>t.done).length;
+ $('objectCount').textContent=objects.length;
+ $('filters').innerHTML=cats.map(c=>`<button class="chip ${filter===c?'active':''}" data-filter="${c}">${c}</button>`).join('');
+ document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;render()});
+ const q=$('search').value.toLowerCase();
+ let list=tasks.filter(t=>(filter==='Todo'||t.category===filter)&&(`${t.title} ${t.notes||''}`).toLowerCase().includes(q)).sort((a,b)=>(a.done-b.done)||(a.priority===b.priority?((a.date||'').localeCompare(b.date||'')):a.priority==='high'?-1:1));
+ $('taskList').innerHTML=list.length?list.map(t=>`<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} data-done="${t.id}" aria-label="Completar"><div class="taskmain"><div class="taskname">${esc(t.title)} <span class="priority ${t.priority==='low'?'low':''}">${t.priority==='high'?'IMPORTANTE':'MENOS IMPORTANTE'}</span></div><div class="meta">${esc(t.category)} · ${esc(t.date||'Sin fecha')} ${t.time?'· '+esc(t.time):''}${t.notes?' · '+esc(t.notes):''}</div></div><div class="actions"><button class="btn small secondary" data-edit="${t.id}">Editar</button><button class="btn small pink" data-del="${t.id}">×</button></div></div>`).join(''):'<div class="empty">No hay tareas en esta vista. ¡Todo despejado!</div>';
+ document.querySelectorAll('[data-done]').forEach(x=>x.onchange=()=>{let t=tasks.find(t=>t.id===x.dataset.done);t.done=x.checked;persist()});
+ document.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>{tasks=tasks.filter(t=>t.id!==x.dataset.del);persist()});
+ document.querySelectorAll('[data-edit]').forEach(x=>x.onclick=()=>editTask(x.dataset.edit));
+ $('shopList').innerHTML=shopping.length?shopping.map((s,i)=>`<div class="shoprow"><label><input type="checkbox" data-shop="${i}" ${s.done?'checked':''}> ${esc(s.name)}</label><button class="btn small pink" data-shopdel="${i}">×</button></div>`).join(''):'<p class="muted">Tu lista está vacía.</p>';
+ document.querySelectorAll('[data-shop]').forEach(x=>x.onchange=()=>{shopping[+x.dataset.shop].done=x.checked;persist()});
+ document.querySelectorAll('[data-shopdel]').forEach(x=>x.onclick=()=>{shopping.splice(+x.dataset.shopdel,1);persist()});
+ const oq=$('objectSearch').value.toLowerCase();
+ let os=objects.map((o,i)=>({...o,i})).filter(o=>(o.name+' '+o.place).toLowerCase().includes(oq));
+ $('objectList').innerHTML=os.length?os.map(o=>`<div class="objectrow"><span><b>${esc(o.name)}</b><br><span class="muted">📍 ${esc(o.place)}</span></span><button class="btn small pink" data-objdel="${o.i}">×</button></div>`).join(''):'<p class="muted">Aún no has guardado objetos.</p>';
+ document.querySelectorAll('[data-objdel]').forEach(x=>x.onclick=()=>{objects.splice(+x.dataset.objdel,1);persist()});
+}
+function editTask(id){let t=tasks.find(x=>x.id===id);if(!t)return;$('taskTitle').value=t.title;$('taskCategory').value=t.category;$('taskPriority').value=t.priority;$('taskDate').value=t.date||'';$('taskTime').value=t.time||'';$('taskNotes').value=t.notes||'';tasks=tasks.filter(x=>x.id!==id);persist();$('taskTitle').focus()}
+$('saveTask').onclick=()=>{let title=$('taskTitle').value.trim();if(!title){$('taskTitle').focus();return}tasks.push({id:crypto.randomUUID(),title,category:$('taskCategory').value,priority:$('taskPriority').value,date:$('taskDate').value,time:$('taskTime').value,notes:$('taskNotes').value,done:false});$('taskTitle').value='';$('taskNotes').value='';persist()};
+$('search').oninput=render;$('objectSearch').oninput=render;
+$('addShop').onclick=()=>{let name=$('shopInput').value.trim();if(name){shopping.push({name,done:false});$('shopInput').value='';persist()}};
+$('shopInput').onkeydown=e=>{if(e.key==='Enter')$('addShop').click()};
+$('saveObject').onclick=()=>{let name=$('objectName').value.trim(),place=$('objectPlace').value.trim();if(name&&place){objects.push({name,place});$('objectName').value='';$('objectPlace').value='';persist()}};
+$('readDay').onclick=()=>{if(!('speechSynthesis'in window)){alert('La lectura de voz no está disponible en este navegador.');return}speechSynthesis.cancel();let list=tasks.filter(t=>!t.done&&t.date===today()).sort((a,b)=>a.priority===b.priority?0:a.priority==='high'?-1:1);let msg=list.length?'Estas son tus tareas de hoy. '+list.map(t=>(t.priority==='high'?'Importante. ':'')+t.title+(t.time?' a las '+t.time:'')).join('. '):'No tienes tareas pendientes para hoy. ¡Disfruta del día!';let u=new SpeechSynthesisUtterance(msg);u.lang='es-ES';let v=voices.find(v=>v.name===$('voiceSelect').value);if(v)u.voice=v;u.rate=.94;u.pitch=1.05;speechSynthesis.speak(u)};
+$('voiceStop').onclick=()=>{if('speechSynthesis'in window)speechSynthesis.cancel()};
+function loadVoices(){if(!('speechSynthesis'in window))return;voices=speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase().startsWith('es'));$('voiceSelect').innerHTML=voices.map(v=>`<option value="${esc(v.name)}">${esc(v.name)} (${esc(v.lang)})</option>`).join('')||'<option>Voz española predeterminada</option>'}
+if('speechSynthesis'in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+$('voiceAdd').onclick=()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){alert('El dictado no está disponible en este navegador. Prueba Microsoft Edge o Google Chrome y permite el acceso al micrófono.');return}
+ const r=new SR();r.lang='es-ES';r.interimResults=false;r.maxAlternatives=1;
+ $('voiceAdd').textContent='🎙️ Escuchando…';
+ r.onresult=e=>{$('taskTitle').value=e.results[0][0].transcript;$('taskTitle').focus()};
+ r.onerror=e=>alert('No se pudo usar el micrófono: '+e.error+'. Comprueba los permisos del navegador.');
+ r.onend=()=>{$('voiceAdd').textContent='🎙️ Añadir tarea hablando'};
+ r.start();
+};
+const h=new Date().getHours();$('greeting').textContent=(h<12?'¡Buenos días! ☀️':h<20?'¡Buenas tardes! 🌤️':'¡Buenas noches! 🌙')+' Vamos a organizar lo importante de hoy.';
+render();
+</script>
+</body></html>
