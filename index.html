@@ -123,8 +123,8 @@ $('voiceShop').onclick=()=>{
  $('voiceShop').disabled=true;$('voiceShop').textContent='🎙️ Escuchando…';$('shopVoiceStatus').textContent='Dime los productos. Puedes enumerarlos en una sola frase.';
  r.onresult=e=>{
    const spoken=e.results[0][0].transcript.trim();
-   const cleaned=spoken.replace(/^(añade|añadir|compra|comprar|necesito|apunta|apuntar)\\s+/i,'');
-   const items=cleaned.split(/,|;|\\s+y\\s+/i).map(x=>x.trim().replace(/[.!?]+$/,'')).filter(Boolean);
+   const cleaned=spoken.replace(/^(añade|añadir|compra|comprar|necesito|apunta|apuntar)\s+/i,'');
+   const items=cleaned.split(/,|;|\s+y\s+/i).map(x=>x.trim().replace(/[.!?]+$/,'')).filter(Boolean);
    const added=[];
    items.forEach(name=>{if(!shopping.some(s=>s.name.toLocaleLowerCase('es')===name.toLocaleLowerCase('es')&&!s.done)){shopping.push({name,done:false});added.push(name)}});
    persist();
