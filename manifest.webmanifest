@@ -2,15 +2,22 @@
   "name": "CUCU — Tu agenda inteligente",
   "short_name": "CUCU",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0755e8",
   "theme_color": "#0755e8",
   "icons": [
     {
-      "src": "cucu-icon.svg?v=4",
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./cucu-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
