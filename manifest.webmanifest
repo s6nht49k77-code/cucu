@@ -7,10 +7,10 @@
   "theme_color": "#0755e8",
   "icons": [
     {
-      "src": "cucu-icon.svg?v=3",
+      "src": "cucu-icon.svg?v=4",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }
