@@ -81,7 +81,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
 <footer>CUCU · Tus datos se guardan en este navegador en este dispositivo.</footer>
 <script>
 const $=id=>document.getElementById(id);
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
 let tasks=JSON.parse(localStorage.getItem('cucu_tasks')||'[]');
 let shopping=JSON.parse(localStorage.getItem('cucu_shopping')||'[]');
 let objects=JSON.parse(localStorage.getItem('cucu_objects')||'[]');
