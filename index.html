@@ -10,7 +10,7 @@
 :root{--navy:#075bff;--purple:#075bff;--pink:#ffca28;--cyan:#32c8d7;--yellow:#ffd45a;--ink:#202342;--muted:#737895;--paper:#f5f6ff;--white:#fff}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(145deg,#eaf1ff,#fff9e8);color:var(--ink);min-height:100vh}
 header{background:var(--navy);color:white;padding:22px max(18px,calc((100% - 1100px)/2));display:flex;align-items:center;gap:15px;box-shadow:0 8px 25px #171b4630}
-.logo{width:64px;height:64px;flex:none}.brand h1{margin:0;font-size:29px;letter-spacing:2px}.brand p{margin:2px 0 0;color:#d7d9ff;font-size:13px}
+.logo{width:76px;height:76px;flex:none;object-fit:contain;border-radius:18px}.brand h1{margin:0;font-size:29px;letter-spacing:2px}.brand p{margin:2px 0 0;color:#d7d9ff;font-size:13px}
 main{max-width:1100px;margin:24px auto;padding:0 16px}.welcome{background:linear-gradient(110deg,#6857e8,#a45ce6 55%,#ff5ca8);color:white;padding:22px;border-radius:22px;box-shadow:0 12px 28px #6857e830}.welcome h2{margin:0 0 5px;font-size:23px}.welcome p{margin:0;opacity:.94}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat,.panel{background:white;border-radius:18px;padding:16px;box-shadow:0 5px 20px #28305c0c}.stat strong{display:block;font-size:27px;color:var(--purple)}.stat span{font-size:12px;color:var(--muted)}
 .voicebar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.btn{border:0;border-radius:13px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--purple);color:white;font-size:14px}.btn:hover{filter:brightness(1.06)}.btn.secondary{background:#ecebff;color:#5144bf}.btn.pink{background:var(--pink)}.btn.dark{background:var(--navy)}.btn.small{padding:8px 11px;font-size:12px}
@@ -22,17 +22,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
 </head>
 <body>
 <header>
-<svg class="logo" viewBox="0 0 100 100" aria-label="Icono CUCU">
- <rect x="2" y="2" width="96" height="96" rx="25" fill="#075bff"/>
- <rect x="57" y="49" width="34" height="39" rx="6" fill="#ffd52a" stroke="#fff" stroke-width="2"/>
- <path d="M57 59h34M65 45v10M82 45v10" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
- <path d="M64 69l5 5 10-11M64 81l5 4 10-10" fill="none" stroke="#075bff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
- <circle cx="39" cy="39" r="27" fill="#ffd52a" stroke="#fff" stroke-width="3"/>
- <circle cx="39" cy="39" r="21" fill="#075bff"/>
- <path d="M39 24v16l12 7" fill="none" stroke="#ffd52a" stroke-width="5" stroke-linecap="round"/>
- <circle cx="39" cy="39" r="3" fill="#fff"/>
- <text x="9" y="95" font-size="9" font-weight="900" fill="#ffd52a">CUCU</text>
-</svg>
+<img class="logo" src="./cucu-icon.svg?v=7" alt="Reloj y calendario de CUCU">
 <div class="brand"><h1 style="color:#ffd52a">CUCU</h1><p>Tu vida. Tu tiempo. Y nada se te pierde.</p></div>
 </header>
 <main>
@@ -78,6 +68,13 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
    <div class="formgrid"><input id="objectName" placeholder="¿Qué objeto?"><input id="objectPlace" placeholder="¿Dónde lo has dejado?"><button class="btn wide" id="saveObject">Guardar ubicación</button></div>
    <input id="objectSearch" class="search section" placeholder="Buscar llaves, gafas...">
    <div id="objectList"></div>
+  </div>
+
+  <div class="panel section" id="alarmPanel">
+   <h3>⏰ Alarma diaria de CUCU</h3>
+   <p class="muted">Elige una hora para recibir un aviso de tus tareas pendientes.</p>
+   <div class="formgrid"><input id="alarmTime" type="time" value="08:00" aria-label="Hora de la alarma"><button class="btn wide" id="enableAlarm">Activar alarma diaria</button></div>
+   <p id="alarmStatus" class="muted" aria-live="polite">La alarma necesita permiso para mostrar notificaciones. Para este aviso local, CUCU debe permanecer abierto.</p>
   </div>
   <div class="panel section">
    <h3>🗣️ Preferencias de voz</h3>
@@ -141,7 +138,54 @@ $('saveObject').onclick=()=>{let name=$('objectName').value.trim(),place=$('obje
 $('readDay').onclick=()=>{if(!('speechSynthesis'in window)){alert('La lectura de voz no está disponible en este navegador.');return}speechSynthesis.cancel();let list=tasks.filter(t=>!t.done&&t.date===today()).sort((a,b)=>a.priority===b.priority?0:a.priority==='high'?-1:1);let msg=list.length?'Estas son tus tareas de hoy. '+list.map(t=>(t.priority==='high'?'Importante. ':'')+t.title+(t.time?' a las '+t.time:'')).join('. '):'No tienes tareas pendientes para hoy. ¡Disfruta del día!';let u=new SpeechSynthesisUtterance(msg);u.lang='es-ES';let v=voices.find(v=>v.name===$('voiceSelect').value);if(v)u.voice=v;u.rate=.94;u.pitch=1.05;speechSynthesis.speak(u)};
 $('voiceStop').onclick=()=>{if('speechSynthesis'in window)speechSynthesis.cancel()};
 function loadVoices(){if(!('speechSynthesis'in window))return;voices=speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase().startsWith('es'));$('voiceSelect').innerHTML=voices.map(v=>`<option value="${esc(v.name)}">${esc(v.name)} (${esc(v.lang)})</option>`).join('')||'<option>Voz española predeterminada</option>'}
+
 if('speechSynthesis'in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+
+// Alarma diaria local: funciona mientras CUCU permanece abierto.
+let cucuSwRegistration=null;
+const alarmTimeInput=$('alarmTime');
+const alarmStatus=$('alarmStatus');
+const alarmButton=$('enableAlarm');
+alarmTimeInput.value=localStorage.getItem('cucu_alarm_time')||'08:00';
+let alarmEnabled=localStorage.getItem('cucu_alarm_enabled')==='true';
+function showAlarmState(){
+ alarmButton.textContent=alarmEnabled?'Desactivar alarma diaria':'Activar alarma diaria';
+ alarmStatus.textContent=alarmEnabled
+  ? '✓ Aviso diario activado a las '+alarmTimeInput.value+'. Mantén CUCU abierto para que pueda avisarte.'
+  : 'La alarma está desactivada. Para este aviso local, CUCU debe permanecer abierto.';
+}
+async function deliverCucuAlarm(){
+ const now=new Date(), target=alarmTimeInput.value;
+ if(!alarmEnabled||!target||now.getHours()*60+now.getMinutes()<Number(target.slice(0,2))*60+Number(target.slice(3,5)))return;
+ const day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+ if(localStorage.getItem('cucu_alarm_last_day')===day)return;
+ localStorage.setItem('cucu_alarm_last_day',day);
+ const pending=tasks.filter(t=>!t.done&&t.date===today()).length;
+ const message=pending? 'Tienes '+pending+' tarea(s) pendiente(s) para hoy. Abre CUCU para verlas.':'Abre CUCU y organiza tu día.';
+ try{
+  if(cucuSwRegistration&&'showNotification'in cucuSwRegistration){
+   await cucuSwRegistration.showNotification('¡Buenos días! CUCU te avisa', {body:message,icon:'./apple-touch-icon.png',badge:'./apple-touch-icon.png',tag:'cucu-daily-reminder',renotify:true});
+  }else if('Notification'in window&&Notification.permission==='granted'){
+   new Notification('¡Buenos días! CUCU te avisa',{body:message,icon:'./apple-touch-icon.png'});
+  }
+  alarmStatus.textContent='✓ Aviso de hoy enviado. Próximo aviso mañana a las '+target+'.';
+ }catch(e){alarmStatus.textContent='No se pudo mostrar la notificación. Revisa los permisos del navegador.'}
+}
+alarmButton.onclick=async()=>{
+ if(alarmEnabled){alarmEnabled=false;localStorage.setItem('cucu_alarm_enabled','false');showAlarmState();return}
+ if(!('Notification'in window)){alarmStatus.textContent='Este navegador no permite notificaciones. Prueba a instalar CUCU como aplicación y abrirla desde su icono.';return}
+ const permission=await Notification.requestPermission();
+ if(permission!=='granted'){alarmStatus.textContent='No se ha concedido permiso para notificaciones. Actívalo en los ajustes del navegador.';return}
+ localStorage.setItem('cucu_alarm_time',alarmTimeInput.value||'08:00');
+ alarmEnabled=true;localStorage.setItem('cucu_alarm_enabled','true');showAlarmState();deliverCucuAlarm();
+};
+alarmTimeInput.onchange=()=>{localStorage.setItem('cucu_alarm_time',alarmTimeInput.value);showAlarmState()};
+showAlarmState();
+if('serviceWorker'in navigator){
+ navigator.serviceWorker.register('./sw.js').then(reg=>{cucuSwRegistration=reg;deliverCucuAlarm()}).catch(()=>{});
+}
+setInterval(deliverCucuAlarm,20000);
+
 $('voiceAdd').onclick=()=>{
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){alert('El dictado no está disponible en este navegador. Prueba Microsoft Edge o Google Chrome y permite el acceso al micrófono.');return}
